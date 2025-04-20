@@ -1,59 +1,40 @@
-// server/src/middlewares/auth.ts
+// server/src/middlewares/validation.ts
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { DecodedToken, UserRole } from '../types';
-import User from '../models/User';
+import { validationResult, body } from 'express-validator';
 
-// Extend Express Request interface
-declare global {
-  namespace Express {
-    interface Request {
-      user?: DecodedToken;
-    }
-  }
-}
-
-export const authenticate = async (
+export const validateRequest = (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
-  try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    
-    if (!token) {
-      res.status(401).json({ message: 'Authentication required' });
-      return;
-    }
-
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET as string
-    ) as DecodedToken;
-
-    req.user = decoded;
-    next();
-  } catch (error) {
-    res.status(401).json({ message: 'Invalid token' });
+): void => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
   }
+  next();
 };
 
-export const authorize = (roles: UserRole[]) => {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      if (!req.user) {
-        res.status(401).json({ message: 'Authentication required' });
-        return;
+export const registerValidator = [
+  body('name').notEmpty().withMessage('Name is required'),
+  body('email')
+    .isEmail().withMessage('Valid email is required')
+    .custom(value => {
+      if (!value.endsWith('@nyu.edu')) {
+        throw new Error('Email must be an NYU email address (@nyu.edu)');
       }
+      return true;
+    }),
+  body('password')
+    .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+];
 
-      if (!roles.includes(req.user.role)) {
-        res.status(403).json({ message: 'Unauthorized access' });
-        return;
-      }
+export const loginValidator = [
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('password').notEmpty().withMessage('Password is required')
+];
 
-      next();
-    } catch (error) {
-      res.status(500).json({ message: 'Server error' });
-    }
-  };
-};
+export const resetPasswordValidator = [
+  body('password')
+    .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+];

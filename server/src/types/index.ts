@@ -1,4 +1,7 @@
 // server/src/types/index.ts
+
+import mongoose from 'mongoose';
+
 export enum UserRole {
     USER = 'user',
     RPA = 'rpa',
@@ -6,7 +9,7 @@ export enum UserRole {
   }
   
   export interface IUser {
-    _id: string;
+    _id?: mongoose.Types.ObjectId;
     name: string;
     email: string;
     password: string;
@@ -20,22 +23,22 @@ export enum UserRole {
   }
   
   export interface IChat {
-    _id: string;
+    _id?: mongoose.Types.ObjectId; // Make optional and use ObjectId type
     participants: Array<{
-      userId: string;
+      userId: mongoose.Types.ObjectId | string; // Allow both types for flexibility
       role: UserRole;
       isAnonymous: boolean;
     }>;
-    messages: string[];
+    messages: mongoose.Types.ObjectId[] | string[]; // Allow both types for flexibility
     createdAt: Date;
     updatedAt: Date;
     isActive: boolean;
   }
   
   export interface IMessage {
-    _id: string;
-    chatId: string;
-    sender: string;
+    _id?: mongoose.Types.ObjectId;
+    chatId: mongoose.Types.ObjectId | string;
+    sender: mongoose.Types.ObjectId | string;
     senderRole: UserRole;
     content: string;
     timestamp: Date;

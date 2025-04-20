@@ -122,7 +122,7 @@ export const setupSocketIO = (server: HttpServer): void => {
         await message.save();
 
         // Add message to chat
-        chat.messages.push(message._id);
+        chat.messages.push(message._id as any); // cast to any to avoid type error
         await chat.save();
 
         // Populate message with sender info
@@ -207,7 +207,7 @@ export const setupSocketIO = (server: HttpServer): void => {
           }
 
           // Notify chat participants
-          io.to(chat._id.toString()).emit('chat-ended', { chatId: chat._id });
+          io.to(String(chat._id)).emit('chat-ended', { chatId: chat._id });
         }
         
         // Update active users list

@@ -2,7 +2,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import { IChat, UserRole } from '../types';
 
-export interface ChatDocument extends IChat, Document {}
+export interface ChatDocument extends Omit<IChat, '_id'>, Document {}
 
 const chatSchema = new Schema<ChatDocument>(
   {

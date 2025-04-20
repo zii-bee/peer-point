@@ -326,7 +326,7 @@ export const sendMessage = async (req: Request, res: Response): Promise<void> =>
     await message.save();
 
     // Add message to chat
-    chat.messages.push(message._id);
+    chat.messages.push(message._id as any);
     await chat.save();
 
     res.status(201).json({ message });

@@ -2,7 +2,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import { IMessage, UserRole } from '../types';
 
-export interface MessageDocument extends IMessage, Document {}
+export interface MessageDocument extends Omit<IMessage, '_id'>, Document {}
 
 const messageSchema = new Schema<MessageDocument>(
   {
